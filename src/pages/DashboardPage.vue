@@ -95,11 +95,11 @@
               </label>
               <label>
                 <input v-model="showOtherCorsidonie" type="checkbox" />
-                🔵 Autres Corsidonie
+                🔵 Herbiers de Corsidonie
               </label>
               <label>
                 <input v-model="showOtherHerbiers" type="checkbox" />
-                🔷 Herbiers existants
+                🔷 Autres Herbiers
               </label>
             </div>
           </div>
@@ -145,6 +145,25 @@
               </div>
             </div>
           </div>
+
+          <!-- Visualization Mode -->
+          <div class="sidebar-section">
+            <h3>🎨 Visualisation</h3>
+            <div class="visualization-toggle">
+              <button 
+                :class="['viz-btn', { active: !showHeatmap }]"
+                @click="showHeatmap = false"
+              >
+                📍 Marqueurs
+              </button>
+              <button 
+                :class="['viz-btn', { active: showHeatmap }]"
+                @click="showHeatmap = true"
+              >
+                🔥 Thermique
+              </button>
+            </div>
+          </div>
         </aside>
 
         <!-- Map Container -->
@@ -178,6 +197,7 @@ export default {
     const currentUser = ref(props.user)
     const userPosidonies = ref([]) // Les 5 posidonies de l'utilisateur
     const sidebarOpen = ref(true) // État du sidebar
+    const showHeatmap = ref(false) // Afficher la heatmap au lieu des marqueurs
     let mapInstance = null
 
     // Mock data
@@ -301,48 +321,96 @@ export default {
       // Charger les données depuis les fichiers JSON
       const { corsidonieData, otherData } = await loadPosidoniaData()
 
-      // Add Corsidonie markers
-      corsidonieData.forEach((point) => {
-        // Vérifier si ce point est une posidonie de l'utilisateur
-        const isUserPosidonie = userPosidonies.value.some(up => 
-          up.lat === point.lat && up.lng === point.lng
-        )
+      // Mode Heatmap
+      if (showHeatmap.value) {
+        // Construire les données pour la heatmap: [[lat, lng, intensity], ...]
+        let heatmapData = []
 
-        // Vérifier si on doit afficher ce point selon les filtres
-        const shouldDisplay = (isUserPosidonie && showUserPosidonies.value) || 
-                             (!isUserPosidonie && showOtherCorsidonie.value)
-        
-        if (!shouldDisplay) return
+        corsidonieData.forEach((point) => {
+          const isUserPosidonie = userPosidonies.value.some(up => 
+            up.lat === point.lat && up.lng === point.lng
+          )
 
-        const marker = L.circleMarker([point.lat, point.lng], {
-          radius: isUserPosidonie ? 12 : 8,
-          fillColor: isUserPosidonie ? '#004BA8' : '#0066CC',
-          color: '#004BA8',
-          weight: isUserPosidonie ? 3 : 2,
-          opacity: 1,
-          fillOpacity: isUserPosidonie ? 1 : 0.8
+          const shouldDisplay = (isUserPosidonie && showUserPosidonies.value) || 
+                               (!isUserPosidonie && showOtherCorsidonie.value)
+          
+          if (!shouldDisplay) return
+
+          // Intensité basée sur le CO₂ (normalisé entre 0 et 1)
+          const intensity = Math.min((point.co2 || 0) / 200, 1)
+          heatmapData.push([point.lat, point.lng, intensity])
         })
-        const popupText = isUserPosidonie ? 
-          `<strong>🌱 ${point.name}</strong><br><em>Votre plantation</em><br>📅 ${point.date}<br>📐 ${point.surface} m²<br>🌍 ${point.co2} kg CO₂` :
-          `<strong>${point.name}</strong><br>📅 ${point.date}<br>📐 ${point.surface} m²<br>🌍 ${point.co2} kg CO₂`
-        marker.bindPopup(popupText)
-        marker.addTo(mapInstance)
-      })
 
-      // Add other posidonies
-      if (showOtherHerbiers.value) {
-        otherData.forEach((point) => {
-          const marker = L.circleMarker([point.lat, point.lng], {
-            radius: 6,
-            fillColor: '#00A8E8',
-            color: '#0066CC',
-            weight: 1,
-            opacity: 0.6,
-            fillOpacity: 0.5
+        if (showOtherHerbiers.value) {
+          otherData.forEach((point) => {
+            const intensity = Math.min((point.co2 || 0) / 200, 1)
+            heatmapData.push([point.lat, point.lng, intensity])
           })
-          marker.bindPopup(`<strong>${point.name}</strong><br>📅 ${point.date}<br>📐 ${point.surface} m²<br>🌍 ${point.co2} kg CO₂`)
+        }
+
+        // Ajouter la heatmap avec leaflet.heat
+        if (heatmapData.length > 0) {
+          L.heatLayer(heatmapData, {
+            radius: 15,
+            blur: 5,
+            maxZoom: 17,
+            max: 1.0,
+            minOpacity: 0.4,
+            gradient: {
+              0.0: '#e0f7ff',    // Cyan très pâle (faible)
+              0.2: '#80dff0',    // Cyan clair
+              0.4: '#00d4ff',    // Cyan vif
+              0.6: '#50fda6',    // Vert clair/turquoise
+              0.8: '#3bdb70',    // Vert foncé
+              1.0: '#0db450'     // Vert très foncé (fort)
+            }
+          }).addTo(mapInstance)
+        }
+      } else {
+        // Mode Marqueurs
+        // Add Corsidonie markers
+        corsidonieData.forEach((point) => {
+          // Vérifier si ce point est une posidonie de l'utilisateur
+          const isUserPosidonie = userPosidonies.value.some(up => 
+            up.lat === point.lat && up.lng === point.lng
+          )
+
+          // Vérifier si on doit afficher ce point selon les filtres
+          const shouldDisplay = (isUserPosidonie && showUserPosidonies.value) || 
+                               (!isUserPosidonie && showOtherCorsidonie.value)
+          
+          if (!shouldDisplay) return
+
+          const marker = L.circleMarker([point.lat, point.lng], {
+            radius: isUserPosidonie ? 12 : 8,
+            fillColor: isUserPosidonie ? '#004BA8' : '#0066CC',
+            color: '#004BA8',
+            weight: isUserPosidonie ? 3 : 2,
+            opacity: 1,
+            fillOpacity: isUserPosidonie ? 1 : 0.8
+          })
+          const popupText = isUserPosidonie ? 
+            `<strong>🌱 ${point.name}</strong><br><em>Votre plantation</em><br>📅 ${point.date}<br>📐 ${point.surface} m²<br>🌍 ${point.co2} kg CO₂` :
+            `<strong>${point.name}</strong><br>📅 ${point.date}<br>📐 ${point.surface} m²<br>🌍 ${point.co2} kg CO₂`
+          marker.bindPopup(popupText)
           marker.addTo(mapInstance)
         })
+
+        // Add other posidonies
+        if (showOtherHerbiers.value) {
+          otherData.forEach((point) => {
+            const marker = L.circleMarker([point.lat, point.lng], {
+              radius: 6,
+              fillColor: '#00A8E8',
+              color: '#0066CC',
+              weight: 1,
+              opacity: 0.6,
+              fillOpacity: 0.5
+            })
+            marker.bindPopup(`<strong>${point.name}</strong><br>📅 ${point.date}<br>📐 ${point.surface} m²<br>🌍 ${point.co2} kg CO₂`)
+            marker.addTo(mapInstance)
+          })
+        }
       }
     }
 
@@ -443,6 +511,14 @@ export default {
       }
     })
 
+    // Watch heatmap toggle
+    watch(showHeatmap, async () => {
+      // Redessiner la carte si on est sur l'onglet cartographie
+      if (activeTab.value === 'cartographie' && mapInstance) {
+        initMap()
+      }
+    })
+
     return {
       activeTab,
       mapElement,
@@ -457,6 +533,7 @@ export default {
       userPosidonies,
       filteredStats,
       sidebarOpen,
+      showHeatmap,
       initMap
     }
   }
@@ -823,6 +900,38 @@ export default {
 #map {
   height: 600px;
   width: 100%;
+}
+
+/* Visualization Toggle */
+.visualization-toggle {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.viz-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: #f0f0f0;
+  color: #666;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.viz-btn:hover {
+  background-color: #e8e8e8;
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+}
+
+.viz-btn.active {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border-color: var(--primary-blue);
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
 }
 
 /* Mobile Responsive */

@@ -4,9 +4,8 @@
     <nav class="navbar">
       <div class="nav-container">
         <div class="logo">
-        <img src="/logo_corsidonie.png" alt="Logo Corsidonie" />
-      </div>
-        <button class="login-btn" @click="$emit('login')">Se connecter</button>
+          <img src="/logo_corsidonie.png" alt="Logo Corsidonie" />
+        </div>
       </div>
     </nav>
 
@@ -76,16 +75,19 @@
         <div class="service-card">
           <div class="service-icon">💳</div>
           <h3>Crédits carbone</h3>
+          <div class="service-subtitle">Préserver</div>
           <p>Achetez des crédits carbone générés par la plantation de posidonie. Chaque crédit représente 1 tonne de CO₂ capturé.</p>
         </div>
         <div class="service-card">
           <div class="service-icon">🌱</div>
           <h3>Prestation de restauration</h3>
+          <div class="service-subtitle">Restaurer</div>
           <p>Confiez-nous votre projet de restauration marine. Nous plantons, suivons et certifions l'impact environnemental.</p>
         </div>
         <div class="service-card">
           <div class="service-icon">📊</div>
           <h3>Suivi et impact</h3>
+          <div class="service-subtitle">Connecter</div>
           <p>Visualisez votre impact en temps réel. Accédez à des données détaillées : CO₂ capturé, O₂ produit, biodiversité abritée.</p>
         </div>
       </div>
@@ -132,9 +134,6 @@ export default {
 .navbar {
   background-color: var(--white);
   border-bottom: 1px solid #e0e0e0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .nav-container {
@@ -142,20 +141,21 @@ export default {
   margin: 0 auto;
   padding: 1rem 2rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  height: 50px;
+  justify-content: center;
+  height: 250px;
 }
 
 .logo img {
   height: 100%;
   width: auto;
-  max-width: 200px;
+  max-width: 250px;
   object-fit: contain;
 }
 
@@ -297,12 +297,18 @@ export default {
 }
 
 .solution-text h2 {
-  text-align: left;
+  text-align: center;
   margin-bottom: 2rem;
+}
+
+.solution-text {
+  text-align: center;
 }
 
 .solution-text ul {
   list-style: none;
+  display: inline-block;
+  text-align: left;
 }
 
 .solution-text li {
@@ -321,6 +327,9 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   margin-top: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .showcase-item img {
@@ -385,6 +394,15 @@ export default {
 .service-card h3 {
   color: var(--primary-blue);
   font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.service-subtitle {
+  color: #3EAB2E;
+  font-size: 0.95rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   margin-bottom: 1rem;
 }
 
