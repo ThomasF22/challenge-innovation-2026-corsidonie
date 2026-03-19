@@ -26,7 +26,6 @@
         <div v-if="error" class="error-message">{{ error }}</div>
         <button type="submit" class="login-submit-btn">Se connecter</button>
       </form>
-      <p class="demo-hint">💡 Démo : Utilisez n'importe quel email et mot de passe</p>
       <button class="back-btn" @click="$emit('logout')">← Retour</button>
     </div>
   </div>

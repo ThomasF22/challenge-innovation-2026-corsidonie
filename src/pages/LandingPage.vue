@@ -3,13 +3,19 @@
     <!-- Navigation -->
     <nav class="navbar">
       <div class="nav-container">
-        <div class="logo">Corsidonie</div>
+        <div class="logo">
+        <img src="/logo_corsidonie.png" alt="Logo Corsidonie" />
+      </div>
         <button class="login-btn" @click="$emit('login')">Se connecter</button>
       </div>
     </nav>
 
     <!-- Hero Section -->
     <section class="hero">
+      <video class="hero-video" autoplay muted loop playsinline>
+        <source src="/posidonie.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay"></div>
       <div class="hero-content">
         <h1>Restaurons les herbiers de posidonie</h1>
         <p>Compensez votre empreinte carbone tout en réparant les écosystèmes marins de la Méditerranée</p>
@@ -51,10 +57,13 @@
             <li><strong>Suivi géographique</strong> : Cartographie en temps réel de vos plantes et de l'impact environnemental</li>
             <li><strong>Crédits carbone certifiables</strong> : Transformez votre action en crédits carbone vérifiables</li>
           </ul>
-        </div>
-        <div class="solution-image">
-          <div class="image-placeholder">
-            🌿 Posidonie en restauration
+          <div class="images-showcase">
+            <div class="showcase-item">
+              <img src="/capsule.png" alt="Capsule biodégradable" />
+            </div>
+            <div class="showcase-item">
+              <img src="/plongeur.jpg" alt="Plongeur en restauration de posidonie" />
+            </div>
           </div>
         </div>
       </div>
@@ -68,19 +77,16 @@
           <div class="service-icon">💳</div>
           <h3>Crédits carbone</h3>
           <p>Achetez des crédits carbone générés par la plantation de posidonie. Chaque crédit représente 1 tonne de CO₂ capturé.</p>
-          <button class="service-btn">En savoir plus</button>
         </div>
         <div class="service-card">
           <div class="service-icon">🌱</div>
           <h3>Prestation de restauration</h3>
           <p>Confiez-nous votre projet de restauration marine. Nous plantons, suivons et certifions l'impact environnemental.</p>
-          <button class="service-btn">En savoir plus</button>
         </div>
         <div class="service-card">
           <div class="service-icon">📊</div>
           <h3>Suivi et impact</h3>
           <p>Visualisez votre impact en temps réel. Accédez à des données détaillées : CO₂ capturé, O₂ produit, biodiversité abritée.</p>
-          <button class="service-btn">En savoir plus</button>
         </div>
       </div>
     </section>
@@ -90,7 +96,7 @@
       <div class="footer-content">
         <div class="footer-section">
           <h4>Corsidonie</h4>
-          <p>Restaurrer les herbiers de posidonie pour un avenir durable en Méditerranée.</p>
+          <p>Restaurer les herbiers de posidonie pour un avenir durable en Méditerranée.</p>
         </div>
         <div class="footer-section">
           <h4>Navigation</h4>
@@ -102,8 +108,6 @@
         </div>
         <div class="footer-section">
           <h4>Contact</h4>
-          <p>info@corsidonie.fr</p>
-          <p>+33 4 95 XX XX XX</p>
         </div>
       </div>
       <div class="footer-bottom">
@@ -143,9 +147,16 @@ export default {
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-blue);
+  display: flex;
+  align-items: center;
+  height: 50px;
+}
+
+.logo img {
+  height: 100%;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
 }
 
 .login-btn {
@@ -165,7 +176,7 @@ export default {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+  position: relative;
   color: var(--white);
   padding: 6rem 2rem;
   text-align: center;
@@ -173,6 +184,32 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-content h1 {
@@ -254,8 +291,8 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  grid-template-columns: 1fr;
+  gap: 2rem;
   align-items: center;
 }
 
@@ -277,6 +314,26 @@ export default {
 
 .solution-text strong {
   color: var(--primary-blue);
+}
+
+.images-showcase {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.showcase-item img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.showcase-item img:hover {
+  transform: scale(1.05);
 }
 
 .image-placeholder {
