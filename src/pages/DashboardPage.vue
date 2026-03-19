@@ -77,65 +77,79 @@
       </div>
 
       <!-- Cartographie Tab -->
-      <div v-show="activeTab === 'cartographie'" class="tab-content">
+      <div v-show="activeTab === 'cartographie'" class="tab-content cartographie-tab">
+        <!-- Mobile Sidebar Toggle -->
+        <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">
+          {{ sidebarOpen ? '✕ Fermer' : '☰ Filtres' }}
+        </button>
+
+        <!-- Sidebar -->
+        <aside :class="['sidebar', { open: sidebarOpen }]">
+          <!-- Filters Section -->
+          <div class="sidebar-section">
+            <h3>🔍 Filtres</h3>
+            <div class="filter-group">
+              <label>
+                <input v-model="showUserPosidonies" type="checkbox" />
+                🌱 Mes plantations
+              </label>
+              <label>
+                <input v-model="showOtherCorsidonie" type="checkbox" />
+                🔵 Autres Corsidonie
+              </label>
+              <label>
+                <input v-model="showOtherHerbiers" type="checkbox" />
+                🔷 Herbiers existants
+              </label>
+            </div>
+          </div>
+
+          <!-- Filtered Stats Section -->
+          <div class="sidebar-section">
+            <h3>📊 Données filtrées</h3>
+            <div class="sidebar-stats">
+              <div class="sidebar-stat">
+                <div class="sidebar-stat-label">Points</div>
+                <div class="sidebar-stat-value">{{ filteredStats.totalPoints }}</div>
+              </div>
+              <div class="sidebar-stat">
+                <div class="sidebar-stat-label">CO₂ (kg)</div>
+                <div class="sidebar-stat-value">{{ filteredStats.totalCo2 }}</div>
+              </div>
+              <div class="sidebar-stat">
+                <div class="sidebar-stat-label">Surface (m²)</div>
+                <div class="sidebar-stat-value">{{ filteredStats.totalSurface }}</div>
+              </div>
+              <div class="sidebar-stat">
+                <div class="sidebar-stat-label">CO₂/point</div>
+                <div class="sidebar-stat-value">{{ filteredStats.averageCo2PerPoint }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="sidebar-section">
+            <h3>🗺️ Légende</h3>
+            <div class="legend-group">
+              <div class="legend-item">
+                <div class="legend-dot user-posidonie"></div>
+                <span>Mes plantations</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot corsidonie"></div>
+                <span>Autres Corsidonie</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot other"></div>
+                <span>Herbiers existants</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Map Container -->
         <div class="map-container">
           <div id="map" ref="mapElement"></div>
-          <div class="map-legend">
-            <h3>Légende</h3>
-            <div class="legend-item">
-              <div class="legend-dot user-posidonie"></div>
-              <span>Mes plantations</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-dot corsidonie"></div>
-              <span>Autres Corsidonie</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-dot other"></div>
-              <span>Herbiers existants</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Filtered Stats -->
-        <div class="filtered-stats-section">
-          <h3>📊 Données actuelles avec filtres appliqués</h3>
-          <div class="filtered-stats-grid">
-            <div class="filtered-stat">
-              <div class="filtered-stat-value">{{ filteredStats.totalPoints }}</div>
-              <div class="filtered-stat-label">Points visibles</div>
-            </div>
-            <div class="filtered-stat">
-              <div class="filtered-stat-value">{{ filteredStats.totalCo2 }} <span>kg</span></div>
-              <div class="filtered-stat-label">CO₂ capturé</div>
-            </div>
-            <div class="filtered-stat">
-              <div class="filtered-stat-value">{{ filteredStats.totalSurface }} <span>m²</span></div>
-              <div class="filtered-stat-label">Surface totale</div>
-            </div>
-            <div class="filtered-stat">
-              <div class="filtered-stat-value">{{ filteredStats.averageCo2PerPoint }} <span>kg</span></div>
-              <div class="filtered-stat-label">CO₂ moyen par point</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="filter-section">
-          <h3>Filtres de la carte</h3>
-          <div class="filter-group">
-            <label>
-              <input v-model="showUserPosidonies" type="checkbox" />
-              🌱 Mes plantations
-            </label>
-            <label>
-              <input v-model="showOtherCorsidonie" type="checkbox" />
-              🔵 Autres plantations Corsidonie
-            </label>
-            <label>
-              <input v-model="showOtherHerbiers" type="checkbox" />
-              🔷 Herbiers existants
-            </label>
-          </div>
         </div>
       </div>
     </div>
@@ -163,13 +177,14 @@ export default {
     const showOtherHerbiers = ref(true)
     const currentUser = ref(props.user)
     const userPosidonies = ref([]) // Les 5 posidonies de l'utilisateur
+    const sidebarOpen = ref(true) // État du sidebar
     let mapInstance = null
 
     // Mock data
     const stats = ref({
-      plantedPosidonies: 2450,
-      co2Captured: 12.3,
-      o2Produced: 8.7
+      plantedPosidonies: 5,
+      co2Captured: 1.23,
+      o2Produced: 0.87
     })
 
     const chartData = ref({
@@ -441,6 +456,7 @@ export default {
       currentUser,
       userPosidonies,
       filteredStats,
+      sidebarOpen,
       initMap
     }
   }
@@ -651,50 +667,135 @@ export default {
   font-weight: bold;
 }
 
-/* Map */
-.map-container {
+/* Cartographie Tab Layout */
+.cartographie-tab {
+  display: flex;
+  gap: 0;
   position: relative;
-  background-color: var(--white);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
 }
 
-#map {
-  height: 500px;
-  width: 100%;
-}
-
-.map-legend {
+.sidebar-toggle {
+  display: none;
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1100;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.sidebar-toggle:hover {
+  background-color: var(--dark-blue);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
   background-color: var(--white);
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-section {
   padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.map-legend h3 {
-  margin: 0 0 1rem 0;
+.sidebar-section h3 {
   color: var(--primary-blue);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.legend-item {
+/* Filter Group in Sidebar */
+.sidebar .filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar label {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.95rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+  transition: color 0.2s;
 }
 
-.legend-dot {
-  width: 12px;
-  height: 12px;
+.sidebar label:hover {
+  color: var(--primary-blue);
+}
+
+.sidebar input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary-blue);
+}
+
+/* Sidebar Stats */
+.sidebar-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar-stat {
+  background: linear-gradient(135deg, #f5f9ff 0%, #e8f4ff 100%);
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-blue);
+}
+
+.sidebar-stat-label {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  margin-bottom: 0.3rem;
+}
+
+.sidebar-stat-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--primary-blue);
+}
+
+/* Legend Group in Sidebar */
+.legend-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legend-group .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.legend-group .legend-dot {
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .legend-dot.user-posidonie {
@@ -709,88 +810,107 @@ export default {
   background-color: #00A8E8;
 }
 
-/* Filter */
-.filter-section {
-  padding: 1.5rem 2rem;
+/* Map Container */
+.map-container {
+  flex: 1;
+  position: relative;
   background-color: var(--white);
   border-radius: 10px;
-}
-
-.filter-section h3 {
-  color: var(--primary-blue);
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.filter-section label {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #333;
-}
-
-.filter-section input[type='checkbox'] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-/* Filtered Stats */
-.filtered-stats-section {
-  background-color: var(--white);
-  padding: 2rem;
-  border-radius: 10px;
-  margin-bottom: 2rem;
+  overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border-top: 4px solid var(--light-blue);
 }
 
-.filtered-stats-section h3 {
-  color: var(--primary-blue);
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
+#map {
+  height: 600px;
+  width: 100%;
 }
 
-.filtered-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 250px;
+    max-height: calc(100vh - 300px);
+  }
+
+  #map {
+    height: 500px;
+  }
 }
 
-.filtered-stat {
-  background: linear-gradient(135deg, #f5f9ff 0%, #e8f4ff 100%);
-  padding: 1.5rem;
-  border-radius: 8px;
-  border-left: 4px solid var(--primary-blue);
-  text-align: center;
+@media (max-width: 768px) {
+  .cartographie-tab {
+    flex-direction: column;
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    max-height: none;
+    overflow: hidden;
+    z-index: 1050;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    transition: height 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar.open {
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .map-container {
+    margin-top: 3.5rem;
+  }
+
+  .sidebar-section {
+    padding: 1rem 1.5rem;
+  }
+
+  .sidebar-section h3 {
+    font-size: 0.9rem;
+  }
+
+  #map {
+    height: 400px;
+  }
+
+  .sidebar-toggle {
+    left: 1rem;
+    top: 0.5rem;
+  }
 }
 
-.filtered-stat-value {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--primary-blue);
-  margin-bottom: 0.5rem;
-}
+@media (max-width: 480px) {
+  #map {
+    height: 300px;
+  }
 
-.filtered-stat-value span {
-  font-size: 0.9rem;
-  color: #666;
-  margin-left: 0.5rem;
-  font-weight: normal;
-}
+  .sidebar {
+    max-height: 50vh;
+  }
 
-.filtered-stat-label {
-  font-size: 0.9rem;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  .sidebar.open {
+    max-height: 70vh;
+  }
+
+  .sidebar-section {
+    padding: 1rem;
+  }
+
+  .sidebar-stat {
+    padding: 0.75rem;
+  }
+
+  .sidebar-stat-value {
+    font-size: 1.1rem;
+  }
 }
 </style>
