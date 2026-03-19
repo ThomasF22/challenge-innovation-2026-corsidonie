@@ -230,9 +230,10 @@ export default {
     // Load posidonie points from JSON files
     const loadPosidoniaData = async () => {
       try {
+        const baseUrl = import.meta.env.BASE_URL
         const [corsidonieResponse, otherResponse] = await Promise.all([
-          fetch('/points_corsidonie.json'),
-          fetch('/points_general.json')
+          fetch(baseUrl + 'points_corsidonie.json'),
+          fetch(baseUrl + 'points_general.json')
         ])
 
         let corsidonieData = await corsidonieResponse.json()

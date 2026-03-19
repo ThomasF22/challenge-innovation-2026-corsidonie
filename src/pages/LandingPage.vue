@@ -110,6 +110,7 @@
         </div>
         <div class="footer-section">
           <h4>Contact</h4>
+          <p><a href="mailto:corsidonie.contact@gmail.com">corsidonie.contact@gmail.com</a></p>
         </div>
       </div>
       <div class="footer-bottom">
