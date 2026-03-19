@@ -228,7 +228,7 @@ export default {
     })
 
     // Load posidonie points from JSON files
-    const loadPosidoniaDfata = async () => {
+    const loadPosidoniaData = async () => {
       try {
         const baseUrl = import.meta.env.BASE_URL
         const [corsidonieResponse, otherResponse] = await Promise.all([
