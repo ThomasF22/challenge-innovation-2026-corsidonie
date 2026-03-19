@@ -109,7 +109,7 @@
             <h3>📊 Données filtrées</h3>
             <div class="sidebar-stats">
               <div class="sidebar-stat">
-                <div class="sidebar-stat-label">Points</div>
+                <div class="sidebar-stat-label">Herbiers de posidonies</div>
                 <div class="sidebar-stat-value">{{ filteredStats.totalPoints }}</div>
               </div>
               <div class="sidebar-stat">
@@ -121,7 +121,7 @@
                 <div class="sidebar-stat-value">{{ filteredStats.totalSurface }}</div>
               </div>
               <div class="sidebar-stat">
-                <div class="sidebar-stat-label">CO₂/point</div>
+                <div class="sidebar-stat-label">CO₂/Herbier</div>
                 <div class="sidebar-stat-value">{{ filteredStats.averageCo2PerPoint }}</div>
               </div>
             </div>
@@ -133,7 +133,7 @@
             <div class="legend-group">
               <div class="legend-item">
                 <div class="legend-dot user-posidonie"></div>
-                <span>Mes plantations</span>
+                <span>Mes herbiers</span>
               </div>
               <div class="legend-item">
                 <div class="legend-dot corsidonie"></div>
@@ -228,7 +228,7 @@ export default {
     })
 
     // Load posidonie points from JSON files
-    const loadPosidoniaData = async () => {
+    const loadPosidoniaDfata = async () => {
       try {
         const baseUrl = import.meta.env.BASE_URL
         const [corsidonieResponse, otherResponse] = await Promise.all([
@@ -948,8 +948,41 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .dashboard-header {
+    padding: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .user-info {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .logout-btn {
+    width: 100%;
+  }
+
+  .menu-tabs {
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .dashboard-content {
+    padding: 1rem;
+  }
+
   .cartographie-tab {
     flex-direction: column;
+    min-height: calc(100vh - 200px);
   }
 
   .sidebar-toggle {
@@ -974,27 +1007,54 @@ export default {
   .sidebar.open {
     height: auto;
     overflow-y: auto;
+    max-height: 60vh;
   }
 
   .map-container {
     margin-top: 3.5rem;
+    flex: 1;
+    min-height: calc(100vh - 300px);
   }
 
   .sidebar-section {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
   }
 
   .sidebar-section h3 {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   #map {
-    height: 400px;
+    height: 100%;
+    min-height: calc(100vh - 400px);
   }
 
   .sidebar-toggle {
-    left: 1rem;
+    left: 0.5rem;
     top: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  /* Stats Grid Mobile */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+  }
+
+  /* Charts Grid Mobile */
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .chart-container {
+    padding: 1.5rem;
   }
 }
 
